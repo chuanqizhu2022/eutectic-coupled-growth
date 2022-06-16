@@ -25,7 +25,7 @@ int ndmz = NDZ - 1;
 int mid = NDX / 4;
 int rows = NDX / NTH;
 
-int nstep = 10001;
+int nstep = 1001;
 int pstep = 500;
 
 double dx = 1.0;
@@ -293,6 +293,24 @@ int main(void)
             }
         }
     }
+
+    // create a vtk file for writing passed domain)
+    FILE *streamc;
+    char bufferc[30];
+    sprintf(bufferc, "data/con/passed.vtk");
+    streamc = fopen(bufferc, "a");
+    fprintf(streamc, "# vtk DataFile Version 1.0\n");
+    fprintf(streamc, "passed.vtk\n");
+    fprintf(streamc, "ASCII\n");
+    fprintf(streamc, "DATASET STRUCTURED_POINTS\n");
+    fprintf(streamc, "DIMENSIONS %d %d %d\n", NDX, NDY, NDZ);
+    fprintf(streamc, "ORIGIN 0.0 0.0 0.0\n");
+    fprintf(streamc, "ASPECT_RATIO 1.0 1.0 1.0\n");
+    fprintf(streamc, "\n");
+    fprintf(streamc, "POINT_DATA %d\n", NDX * NDY * NDZ);
+    fprintf(streamc, "SCALARS scalars float\n");
+    fprintf(streamc, "LOOKUP_TABLE default\n");
+    fclose(streamc);
 
 #pragma omp parallel num_threads(NTH)
     {
@@ -959,29 +977,29 @@ int main(void)
             if (intpos > mid)
             {
                 dist = intpos - mid;
-                // frapass += dist;
+                frapass += dist;
                 // cout << "--" << endl;
                 // cout << "    the distance away from middle is " << dist << endl;
                 // cout << "--" << endl;
                 // cout << "    the interface temperature is " << temp[NDX / 2][NDY / 2][mid] << endl;
 
                 // write passed domain
-                // FILE *streamc;
-                // char bufferc[30];
-                // sprintf(bufferc, "data/con/passed.vtk");
-                // streamc = fopen(bufferc, "a");
+                FILE *streamc;
+                char bufferc[30];
+                sprintf(bufferc, "data/con/passed.vtk");
+                streamc = fopen(bufferc, "a");
 
-                // for (iz = 0; iz < dist; iz++)
-                // {
-                //     for (ix = 0; ix <= ndmx; ix++)
-                //     {
-                //         for (iy = 0; iy <= ndmy; iy++)
-                //         {
-                //             fprintf(streamc, "%e\n", cont[ix][iy][iz]);
-                //         }
-                //     }
-                // }
-                // fclose(streamc);
+                for (iy = 0; iy < dist; iy++)
+                {
+                    for (ix = 0; ix <= ndmx; ix++)
+                    {
+                        for (iz = 0; iz <= ndmz; iz++)
+                        {
+                            fprintf(streamc, "%e\n", cont[ix][iy][iz]);
+                        }
+                    }
+                }
+                fclose(streamc);
 
                 for (iy = 0; iy <= (ndmy - dist); iy++)
                 {
@@ -1036,6 +1054,28 @@ int main(void)
     end:;
     }
 terminal:;
+    cout << "***********************************"
+         << endl;
+    cout << "Computation has DONE!" << endl;
+    cout << "the lenght of passed frame is " << frapass << endl;
+    cout << "***********************************\n"
+         << endl;
+    FILE *streamcc;
+    char buffercc[30];
+    sprintf(buffercc, "data/con/passed.vtk");
+    streamcc = fopen(buffercc, "a");
+
+    for (j = 0; j < ndmy; j++)
+    {
+        for (i = 0; i <= ndmx; i++)
+        {
+            for (k = 0; k <= ndmz; k++)
+            {
+                fprintf(streamcc, "%e\n", cont[i][j][k]);
+            }
+        }
+    }
+    fclose(streamcc);
     return 0;
 }
 

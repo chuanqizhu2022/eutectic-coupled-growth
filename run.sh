@@ -12,4 +12,4 @@ figurescon/*.png \
 figures/phi/*.png \
 && ./main \
 && rm main \
-&& python plot1d.py
+# && python plot1d.py

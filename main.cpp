@@ -12,8 +12,8 @@ using namespace cimg_library;
 
 #define N 3
 #define NTH 8
-#define NDX 64
-#define NDY 64
+#define NDX 128
+#define NDY 128
 #define NDZ 1
 #define NDL 2560
 #define PI 3.14159
@@ -202,8 +202,8 @@ int main(void)
             for (k = 0; k <= ndmz; k++)
             {
                 // if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
-                // if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) < (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
+                if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
+                // if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
                 {
                     phi[1][i][j][k] = 1.0;
                     conp[1][i][j][k] = calC1e(temp[i][j][k]);
@@ -213,7 +213,7 @@ int main(void)
                     conp[0][i][j][k] = calC01e(temp[i][j][k]);
                 }
                 // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                else if (i >= NDY * 9.0 / 10.0 && j < NDX / 4)
+                else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
                 {
                     phi[1][i][j][k] = 0.0;
                     conp[1][i][j][k] = calC1e(temp[i][j][k]);

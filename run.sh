@@ -3,6 +3,7 @@ g++ -fopenmp \
 main.cpp -o main \
 && rm -f \
 data/con/*.vtk \
+data/phi/*.vtk \
 data/con/*.csv \
 data/phi/*.csv \
 figures/con_xy/*.png \

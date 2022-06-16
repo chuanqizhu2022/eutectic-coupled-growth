@@ -47,7 +47,7 @@ double Ds = 2.0e-4;
 
 double gradT = 0.000;
 double rateT = 0.000000;
-double temp0 = -1.0;
+double temp0 = -0.5;
 double cl = 0.122;
 
 double alpha_d = dtime * Dl / dx / dx;
@@ -259,11 +259,11 @@ int main(void)
                 }
                 if (j == ndmy)
                 {
-                    jp = 0;
+                    jp = ndmy;
                 }
                 if (j == 0)
                 {
-                    jm = ndmy;
+                    jm = 0;
                 }
                 if (k == ndmz)
                 {
@@ -394,11 +394,11 @@ int main(void)
                     }
                     if (iy == ndmy)
                     {
-                        iyp = 0;
+                        iyp = ndmy;
                     }
                     if (iy == 0)
                     {
-                        iym = ndmy;
+                        iym = 0;
                     }
                     if (iz == ndmz)
                     {
@@ -669,11 +669,11 @@ int main(void)
                     }
                     if (iy == ndmy)
                     {
-                        iyp = 0;
+                        iyp = ndmy;
                     }
                     if (iy == 0)
                     {
-                        iym = ndmy;
+                        iym = 0;
                     }
                     if (iz == ndmz)
                     {
@@ -728,11 +728,11 @@ int main(void)
                     }
                     if (iy == ndmy)
                     {
-                        iyp = 0;
+                        iyp = ndmy;
                     }
                     if (iy == 0)
                     {
-                        iym = ndmy;
+                        iym = 0;
                     }
                     if (iz == ndmz)
                     {
@@ -872,11 +872,11 @@ int main(void)
                     }
                     if (iy == ndmy)
                     {
-                        iyp = 0;
+                        iyp = ndmy;
                     }
                     if (iy == 0)
                     {
-                        iym = ndmy;
+                        iym = 0;
                     }
                     if (iz == ndmz)
                     {
@@ -969,6 +969,36 @@ void datasave(int step)
         }
     }
     fclose(streamc0);
+
+    FILE *streamp;
+    char bufferp[30];
+    sprintf(bufferp, "data/phi/3d%d.vtk", step);
+    streamp = fopen(bufferp, "a");
+
+    fprintf(streamp, "# vtk DataFile Version 1.0\n");
+    fprintf(streamp, "phi_%d.vtk\n", step);
+    fprintf(streamp, "ASCII\n");
+    fprintf(streamp, "DATASET STRUCTURED_POINTS\n");
+    fprintf(streamp, "DIMENSIONS %d %d %d\n", NDX, NDY, NDZ);
+    fprintf(streamp, "ORIGIN 0.0 0.0 0.0\n");
+    fprintf(streamp, "ASPECT_RATIO 1.0 1.0 1.0\n");
+    fprintf(streamp, "\n");
+    fprintf(streamp, "POINT_DATA %d\n", NDX * NDY * NDZ);
+    fprintf(streamp, "SCALARS scalars float\n");
+    fprintf(streamp, "LOOKUP_TABLE default\n");
+
+    for (k = 0; k <= ndmz; k++)
+    {
+        for (j = 0; j <= ndmy; j++)
+        {
+            for (i = 0; i <= ndmx; i++)
+            {
+                // fprintf(streamc0, "%e\n", phi[1][i][j][k]);
+                fprintf(streamp, "%e\n", phi[2][i][j][k]);
+            }
+        }
+    }
+    fclose(streamp);
 
     // FILE *streamp; //ストリームのポインタ設定
     // char bufferp[30];

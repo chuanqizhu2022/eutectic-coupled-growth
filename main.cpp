@@ -22,7 +22,7 @@ int nm = N - 1;
 int ndmx = NDX - 1;
 int ndmy = NDY - 1;
 int ndmz = NDZ - 1;
-int mid = NDX / 2;
+int mid = NDX / 4;
 int rows = NDX / NTH;
 
 int nstep = 10001;
@@ -958,7 +958,7 @@ int main(void)
             // check the distance from the middle of the domain
             if (intpos > mid)
             {
-                // dist = intpos - mid;
+                dist = intpos - mid;
                 // frapass += dist;
                 // cout << "--" << endl;
                 // cout << "    the distance away from middle is " << dist << endl;
@@ -983,35 +983,35 @@ int main(void)
                 // }
                 // fclose(streamc);
 
-                for (iz = 0; iz <= (ndmz - dist); iz++)
+                for (iy = 0; iy <= (ndmy - dist); iy++)
                 {
                     for (ix = 0; ix <= ndmx; ix++)
                     {
-                        for (iy = 0; iy <= ndmy; iy++)
+                        for (iz = 0; iz <= ndmz; iz++)
                         {
                             // temp
-                            temp[ix][iy][iz] = temp[ix][iy][iz + dist];
+                            temp[ix][iy][iz] = temp[ix][iy + dist][iz];
                             // cont
-                            cont[ix][iy][iz] = cont[ix][iy][iz + dist];
+                            cont[ix][iy][iz] = cont[ix][iy + dist][iz];
                             // phi
-                            phi[0][ix][iy][iz] = phi[0][ix][iy][iz + dist];
-                            phi[1][ix][iy][iz] = phi[1][ix][iy][iz + dist];
-                            phi[2][ix][iy][iz] = phi[2][ix][iy][iz + dist];
+                            phi[0][ix][iy][iz] = phi[0][ix][iy + dist][iz];
+                            phi[1][ix][iy][iz] = phi[1][ix][iy + dist][iz];
+                            phi[2][ix][iy][iz] = phi[2][ix][iy + dist][iz];
                             // conp
-                            conp[0][ix][iy][iz] = conp[0][ix][iy][iz + dist];
-                            conp[1][ix][iy][iz] = conp[1][ix][iy][iz + dist];
-                            conp[2][ix][iy][iz] = conp[2][ix][iy][iz + dist];
+                            conp[0][ix][iy][iz] = conp[0][ix][iy + dist][iz];
+                            conp[1][ix][iy][iz] = conp[1][ix][iy + dist][iz];
+                            conp[2][ix][iy][iz] = conp[2][ix][iy + dist][iz];
                         }
                     }
                 }
-                for (iz = (ndmz - dist + 1); iz <= ndmz; iz++)
+                for (iy = (ndmy - dist + 1); iy <= ndmy; iy++)
                 {
                     for (ix = 0; ix <= ndmx; ix++)
                     {
-                        for (iy = 0; iy <= ndmy; iy++)
+                        for (iz = 0; iz <= ndmz; iz++)
                         {
                             // temp
-                            temp[ix][iy][iz] = temp[ix][iy][ndmz - dist] + gradT * (iz - ndmz + dist) * dx;
+                            temp[ix][iy][iz] = temp[ix][ndmy - dist][iz] + gradT * (iy - ndmy + dist) * dx;
                             // cont
                             // new liquid is flowing into the box
                             cont[ix][iy][iz] = cl;

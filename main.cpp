@@ -347,9 +347,10 @@ int main(void)
             invV = double(pstep) / double(curpos - prepos);
             prepos = curpos;
             datasave(istep);
-            cout << istep << " steps(" << istep * dtime << " seconds) has done!" << endl;
-            cout << "--" << endl;
-            cout << "   The nominal concnetration is " << c0 << endl;
+            cout << "----------------------" << endl;
+            cout << istep << " steps have done!" << endl;
+            cout << "The interface position is " << intpos << endl;
+            cout << "The average concnetration is " << c0 << endl;
             // ****** YZ *******
             cimg_forXY(ch_fldxz, x, z)
             {
@@ -924,7 +925,109 @@ int main(void)
             }
         }
 
-        istep = istep + 1;
+        //----------------------------------------------  Moving frame  -----------------------------------------------
+#pragma omp barrier
+        if (th_id == 0)
+        {
+            allL = 1;
+            // search interface front
+            for (iy = ndmy; iy >= 0; iy--)
+            {
+                if (allL == 0)
+                {
+                    intpos = iy;
+                    break;
+                }
+                for (ix = 0; ix <= ndmx; ix++)
+                {
+                    for (iz = 0; iz <= ndmz; iz++)
+                    {
+                        if (phi[0][ix][iy][iz] < 1.0)
+                        {
+                            allL = 0;
+                            break;
+                        }
+                    }
+                    if (allL == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            istep = istep + 1;
+            // check the distance from the middle of the domain
+            if (intpos > mid)
+            {
+                // dist = intpos - mid;
+                // frapass += dist;
+                // cout << "--" << endl;
+                // cout << "    the distance away from middle is " << dist << endl;
+                // cout << "--" << endl;
+                // cout << "    the interface temperature is " << temp[NDX / 2][NDY / 2][mid] << endl;
+
+                // write passed domain
+                // FILE *streamc;
+                // char bufferc[30];
+                // sprintf(bufferc, "data/con/passed.vtk");
+                // streamc = fopen(bufferc, "a");
+
+                // for (iz = 0; iz < dist; iz++)
+                // {
+                //     for (ix = 0; ix <= ndmx; ix++)
+                //     {
+                //         for (iy = 0; iy <= ndmy; iy++)
+                //         {
+                //             fprintf(streamc, "%e\n", cont[ix][iy][iz]);
+                //         }
+                //     }
+                // }
+                // fclose(streamc);
+
+                for (iz = 0; iz <= (ndmz - dist); iz++)
+                {
+                    for (ix = 0; ix <= ndmx; ix++)
+                    {
+                        for (iy = 0; iy <= ndmy; iy++)
+                        {
+                            // temp
+                            temp[ix][iy][iz] = temp[ix][iy][iz + dist];
+                            // cont
+                            cont[ix][iy][iz] = cont[ix][iy][iz + dist];
+                            // phi
+                            phi[0][ix][iy][iz] = phi[0][ix][iy][iz + dist];
+                            phi[1][ix][iy][iz] = phi[1][ix][iy][iz + dist];
+                            phi[2][ix][iy][iz] = phi[2][ix][iy][iz + dist];
+                            // conp
+                            conp[0][ix][iy][iz] = conp[0][ix][iy][iz + dist];
+                            conp[1][ix][iy][iz] = conp[1][ix][iy][iz + dist];
+                            conp[2][ix][iy][iz] = conp[2][ix][iy][iz + dist];
+                        }
+                    }
+                }
+                for (iz = (ndmz - dist + 1); iz <= ndmz; iz++)
+                {
+                    for (ix = 0; ix <= ndmx; ix++)
+                    {
+                        for (iy = 0; iy <= ndmy; iy++)
+                        {
+                            // temp
+                            temp[ix][iy][iz] = temp[ix][iy][ndmz - dist] + gradT * (iz - ndmz + dist) * dx;
+                            // cont
+                            // new liquid is flowing into the box
+                            cont[ix][iy][iz] = cl;
+                            // phi
+                            phi[0][ix][iy][iz] = 1.0;
+                            phi[1][ix][iy][iz] = 0.0;
+                            phi[2][ix][iy][iz] = 0.0;
+                            // conp
+                            conp[0][ix][iy][iz] = cl;
+                            conp[1][ix][iy][iz] = calC1e(temp[ix][iy][iz]);
+                            conp[2][ix][iy][iz] = calC2e(temp[ix][iy][iz]);
+                        }
+                    }
+                }
+            }
+        }
 #pragma omp barrier
         if (istep < nstep)
         {
@@ -999,40 +1102,6 @@ void datasave(int step)
         }
     }
     fclose(streamp);
-
-    // FILE *streamp; //ストリームのポインタ設定
-    // char bufferp[30];
-    // sprintf(bufferp, "data/phi/1d%d.csv", step);
-    // streamp = fopen(bufferp, "a");
-
-    // for (k = 0; k <= ndmz; k++)
-    // {
-    //     for (j = 0; j <= ndmy; j++)
-    //     {
-    //         for (i = 0; i <= ndmx; i++)
-    //         {
-    //             fprintf(streamp, "%e\n", phi[2][i][j][k]);
-    //         }
-    //     }
-    // }
-    // fclose(streamp);
-
-    // FILE *streamc; //ストリームのポインタ設定
-    // char bufferc[30];
-    // sprintf(bufferc, "data/con/1d%d.csv", step);
-    // streamc = fopen(bufferc, "a");
-
-    // for (k = 0; k <= ndmz; k++)
-    // {
-    //     for (j = 0; j <= ndmy; j++)
-    //     {
-    //         for (i = 0; i <= ndmx; i++)
-    //         {
-    //             fprintf(streamc, "%e\n", cont[i][j][k]);
-    //         }
-    //     }
-    // }
-    // fclose(streamc);
 }
 
 double calC01e(double temp0)

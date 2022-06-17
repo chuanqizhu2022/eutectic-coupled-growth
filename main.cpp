@@ -29,11 +29,11 @@ int nstep = 10001;
 int pstep = 2000;
 
 double dx = 1.0e-7;
-double dtime = 1.0e-14;
+double dtime = 1.0e-5;
 
 double gamma0 = 0.1;
 double astre = -0.05;
-double mobi = 0.25;
+double mobi = 0.25e-9;
 double delta = 5.0 * dx;
 
 double A0 = 8.0 * delta * gamma0 / PI / PI;
@@ -42,8 +42,8 @@ double M0 = mobi * PI * PI / (8.0 * delta);
 double S1 = 1.08e6;
 double S2 = 2.4e6;
 
-double Dl = 0.1;
-double Ds = 2.0e-4;
+double Dl = 0.1e-9;
+double Ds = 2.0e-13;
 
 double gradT = 0.000;
 double rateT = 0.000000;
@@ -366,7 +366,7 @@ int main(void)
             prepos = curpos;
             datasave(istep);
             cout << "----------------------" << endl;
-            cout << istep << " steps have done!" << endl;
+            cout << istep * dtime << " s have passed!" << endl;
             cout << "The interface position is " << intpos << endl;
             cout << "The average concnetration is " << c0 << endl;
             // ****** YZ *******

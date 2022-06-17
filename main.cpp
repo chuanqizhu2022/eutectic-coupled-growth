@@ -25,8 +25,8 @@ int ndmz = NDZ - 1;
 int mid = NDX / 4;
 int rows = NDX / NTH;
 
-int nstep = 1001;
-int pstep = 500;
+int nstep = 10001;
+int pstep = 2000;
 
 double dx = 1.0;
 double dtime = 1.0;
@@ -1045,6 +1045,26 @@ int main(void)
                     }
                 }
             }
+            // append the box to the passed frame at the last step
+            if (istep == nstep)
+            {
+                FILE *streamcc;
+                char buffercc[30];
+                sprintf(buffercc, "data/con/passed.vtk");
+                streamcc = fopen(buffercc, "a");
+
+                for (j = 0; j < ndmy; j++)
+                {
+                    for (i = 0; i <= ndmx; i++)
+                    {
+                        for (k = 0; k <= ndmz; k++)
+                        {
+                            fprintf(streamcc, "%e\n", cont[i][j][k]);
+                        }
+                    }
+                }
+                fclose(streamcc);
+            }
         }
 #pragma omp barrier
         if (istep < nstep)
@@ -1057,25 +1077,10 @@ terminal:;
     cout << "***********************************"
          << endl;
     cout << "Computation has DONE!" << endl;
-    cout << "the lenght of passed frame is " << frapass << endl;
+    cout << "The total length " << frapass + 127 << endl;
+    cout << "The total grids " << (frapass + 127) * 128 << endl;
     cout << "***********************************\n"
          << endl;
-    FILE *streamcc;
-    char buffercc[30];
-    sprintf(buffercc, "data/con/passed.vtk");
-    streamcc = fopen(buffercc, "a");
-
-    for (j = 0; j < ndmy; j++)
-    {
-        for (i = 0; i <= ndmx; i++)
-        {
-            for (k = 0; k <= ndmz; k++)
-            {
-                fprintf(streamcc, "%e\n", cont[i][j][k]);
-            }
-        }
-    }
-    fclose(streamcc);
     return 0;
 }
 
@@ -1113,35 +1118,68 @@ void datasave(int step)
     }
     fclose(streamc0);
 
-    FILE *streamp;
-    char bufferp[30];
-    sprintf(bufferp, "data/phi/3d%d.vtk", step);
-    streamp = fopen(bufferp, "a");
+    // FILE *streamp;
+    // char bufferp[30];
+    // sprintf(bufferp, "data/phi/3d%d.vtk", step);
+    // streamp = fopen(bufferp, "a");
 
-    fprintf(streamp, "# vtk DataFile Version 1.0\n");
-    fprintf(streamp, "phi_%d.vtk\n", step);
-    fprintf(streamp, "ASCII\n");
-    fprintf(streamp, "DATASET STRUCTURED_POINTS\n");
-    fprintf(streamp, "DIMENSIONS %d %d %d\n", NDX, NDY, NDZ);
-    fprintf(streamp, "ORIGIN 0.0 0.0 0.0\n");
-    fprintf(streamp, "ASPECT_RATIO 1.0 1.0 1.0\n");
-    fprintf(streamp, "\n");
-    fprintf(streamp, "POINT_DATA %d\n", NDX * NDY * NDZ);
-    fprintf(streamp, "SCALARS scalars float\n");
-    fprintf(streamp, "LOOKUP_TABLE default\n");
+    // fprintf(streamp, "# vtk DataFile Version 1.0\n");
+    // fprintf(streamp, "phi_%d.vtk\n", step);
+    // fprintf(streamp, "ASCII\n");
+    // fprintf(streamp, "DATASET STRUCTURED_POINTS\n");
+    // fprintf(streamp, "DIMENSIONS %d %d %d\n", NDX, NDY, NDZ);
+    // fprintf(streamp, "ORIGIN 0.0 0.0 0.0\n");
+    // fprintf(streamp, "ASPECT_RATIO 1.0 1.0 1.0\n");
+    // fprintf(streamp, "\n");
+    // fprintf(streamp, "POINT_DATA %d\n", NDX * NDY * NDZ);
+    // fprintf(streamp, "SCALARS scalars float\n");
+    // fprintf(streamp, "LOOKUP_TABLE default\n");
 
-    for (k = 0; k <= ndmz; k++)
-    {
-        for (j = 0; j <= ndmy; j++)
-        {
-            for (i = 0; i <= ndmx; i++)
-            {
-                // fprintf(streamc0, "%e\n", phi[1][i][j][k]);
-                fprintf(streamp, "%e\n", phi[2][i][j][k]);
-            }
-        }
-    }
-    fclose(streamp);
+    // for (k = 0; k <= ndmz; k++)
+    // {
+    //     for (j = 0; j <= ndmy; j++)
+    //     {
+    //         for (i = 0; i <= ndmx; i++)
+    //         {
+    //             // fprintf(streamc0, "%e\n", phi[1][i][j][k]);
+    //             fprintf(streamp, "%e\n", phi[2][i][j][k]);
+    //         }
+    //     }
+    // }
+    // fclose(streamp);
+    // FILE *streamp; //ストリームのポインタ設定
+    // char bufferp[30];
+    // sprintf(bufferp, "data/phi/1d%d.csv", step);
+    // streamp = fopen(bufferp, "a");
+
+    // for (k = 0; k <= ndmz; k++)
+    // {
+    //     for (j = 0; j <= ndmy; j++)
+    //     {
+    //         for (i = 0; i <= ndmx; i++)
+    //         {
+    //             fprintf(streamp, "%e\n", phi[2][i][j][k]);
+    //         }
+    //     }
+    // }
+    // fclose(streamp);
+
+    // FILE *streamc; //ストリームのポインタ設定
+    // char bufferc[30];
+    // sprintf(bufferc, "data/con/1d%d.csv", step);
+    // streamc = fopen(bufferc, "a");
+
+    // for (k = 0; k <= ndmz; k++)
+    // {
+    //     for (j = 0; j <= ndmy; j++)
+    //     {
+    //         for (i = 0; i <= ndmx; i++)
+    //         {
+    //             fprintf(streamc, "%e\n", cont[i][j][k]);
+    //         }
+    //     }
+    // }
+    // fclose(streamc);
 }
 
 double calC01e(double temp0)

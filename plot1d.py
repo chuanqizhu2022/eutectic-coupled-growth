@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-ns = 500
+ns = 1000
 nx = 128
 ny = 1
-step_arr = np.arange(0, ns*21, ns)
+step_arr = np.arange(0, ns*51, ns)
 for step in step_arr:
     df = pd.read_csv(f"data/phi/1d{step}.csv", header=None)
     arr = df[0].values

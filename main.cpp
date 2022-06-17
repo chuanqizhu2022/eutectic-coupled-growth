@@ -13,7 +13,7 @@ using namespace cimg_library;
 #define N 3
 #define NTH 8
 #define NDX 128
-#define NDY 128
+#define NDY 1
 #define NDZ 1
 #define NDL 2560
 #define PI 3.14159
@@ -28,8 +28,8 @@ int rows = NDX / NTH;
 int nstep = 10001;
 int pstep = 2000;
 
-double dx = 1.0;
-double dtime = 1.0;
+double dx = 1.0e-7;
+double dtime = 1.0e-14;
 
 double gamma0 = 0.1;
 double astre = -0.05;
@@ -39,8 +39,8 @@ double delta = 5.0 * dx;
 double A0 = 8.0 * delta * gamma0 / PI / PI;
 double W0 = 4.0 * gamma0 / delta;
 double M0 = mobi * PI * PI / (8.0 * delta);
-double S1 = 0.03;
-double S2 = 0.06;
+double S1 = 1.08e6;
+double S2 = 2.4e6;
 
 double Dl = 0.1;
 double Ds = 2.0e-4;
@@ -48,10 +48,10 @@ double Ds = 2.0e-4;
 double gradT = 0.000;
 double rateT = 0.000000;
 double temp0 = -0.5;
-double cl = 0.122;
+double cl = 0.222;
 
 double alpha_d = dtime * Dl / dx / dx;
-double alpha_m = dtime / dx / dx * mobi * A0;
+double alpha_m = dtime / dx / dx * M0 * A0;
 
 double mij[N][N], aij[N][N], wij[N][N], fij[N][N];
 double thij[N][N], vpij[N][N], etaij[N][N];
@@ -201,19 +201,19 @@ int main(void)
         {
             for (k = 0; k <= ndmz; k++)
             {
-                // if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
-                if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
+                if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
+                // if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
                 // if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
-                {
-                    phi[1][i][j][k] = 1.0;
-                    conp[1][i][j][k] = calC1e(temp[i][j][k]);
-                    phi[2][i][j][k] = 0.0;
-                    conp[2][i][j][k] = calC2e(temp[i][j][k]);
-                    phi[0][i][j][k] = 0.0;
-                    conp[0][i][j][k] = calC01e(temp[i][j][k]);
-                }
+                // {
+                //     phi[1][i][j][k] = 1.0;
+                //     conp[1][i][j][k] = calC1e(temp[i][j][k]);
+                //     phi[2][i][j][k] = 0.0;
+                //     conp[2][i][j][k] = calC2e(temp[i][j][k]);
+                //     phi[0][i][j][k] = 0.0;
+                //     conp[0][i][j][k] = calC01e(temp[i][j][k]);
+                // }
                 // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
+                // else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
                 {
                     phi[1][i][j][k] = 0.0;
                     conp[1][i][j][k] = calC1e(temp[i][j][k]);
@@ -440,17 +440,17 @@ int main(void)
                             {
                                 kk = phiIdx[n3][ix][iy][iz];
 
-                                phidx = (phi[kk][ixp][iy][iz] - phi[kk][ixm][iy][iz]) / 2.0;
-                                phidy = (phi[kk][ix][iyp][iz] - phi[kk][ix][iym][iz]) / 2.0;
-                                phidz = (phi[kk][ix][iy][izp] - phi[kk][ix][iy][izm]) / 2.0;
+                                phidx = (phi[kk][ixp][iy][iz] - phi[kk][ixm][iy][iz]) / 2.0 / dx;
+                                phidy = (phi[kk][ix][iyp][iz] - phi[kk][ix][iym][iz]) / 2.0 / dx;
+                                phidz = (phi[kk][ix][iy][izp] - phi[kk][ix][iy][izm]) / 2.0 / dx;
 
-                                phidxx = (phi[kk][ixp][iy][iz] + phi[kk][ixm][iy][iz] - 2.0 * phi[kk][ix][iy][iz]);
-                                phidyy = (phi[kk][ix][iyp][iz] + phi[kk][ix][iym][iz] - 2.0 * phi[kk][ix][iy][iz]);
-                                phidzz = (phi[kk][ix][iy][izp] + phi[kk][ix][iy][izm] - 2.0 * phi[kk][ix][iy][iz]);
+                                phidxx = (phi[kk][ixp][iy][iz] + phi[kk][ixm][iy][iz] - 2.0 * phi[kk][ix][iy][iz]) / dx / dx;
+                                phidyy = (phi[kk][ix][iyp][iz] + phi[kk][ix][iym][iz] - 2.0 * phi[kk][ix][iy][iz]) / dx / dx;
+                                phidzz = (phi[kk][ix][iy][izp] + phi[kk][ix][iy][izm] - 2.0 * phi[kk][ix][iy][iz]) / dx / dx;
 
-                                phidxy = (phi[kk][ixp][iyp][iz] + phi[kk][ixm][iym][iz] - phi[kk][ixm][iyp][iz] - phi[kk][ixp][iym][iz]) / 4.0;
-                                phidxz = (phi[kk][ixp][iy][izp] + phi[kk][ixm][iy][izm] - phi[kk][ixm][iy][izp] - phi[kk][ixp][iy][izm]) / 4.0;
-                                phidyz = (phi[kk][ix][iyp][izp] + phi[kk][ix][iym][izm] - phi[kk][ix][iym][izp] - phi[kk][ix][iyp][izm]) / 4.0;
+                                phidxy = (phi[kk][ixp][iyp][iz] + phi[kk][ixm][iym][iz] - phi[kk][ixm][iyp][iz] - phi[kk][ixp][iym][iz]) / 4.0 / dx / dx;
+                                phidxz = (phi[kk][ixp][iy][izp] + phi[kk][ixm][iy][izm] - phi[kk][ixm][iy][izp] - phi[kk][ixp][iy][izm]) / 4.0 / dx / dx;
+                                phidyz = (phi[kk][ix][iyp][izp] + phi[kk][ix][iym][izm] - phi[kk][ix][iym][izp] - phi[kk][ix][iyp][izm]) / 4.0 / dx / dx;
 
                                 phiabs = phidx * phidx + phidy * phidy + phidz * phidz;
 
@@ -520,7 +520,7 @@ int main(void)
                                 }
                                 else
                                 {
-                                    termiikk = aij[ii][kk] * (phidxx + phidyy + phidzz) / (dx * dx);
+                                    termiikk = aij[ii][kk] * (phidxx + phidyy + phidzz);
                                 }
 
                                 if (anij[jj][kk] == 1 && phiabs != 0.0)
@@ -589,7 +589,7 @@ int main(void)
                                 }
                                 else
                                 {
-                                    termjjkk = aij[jj][kk] * (phidxx + phidyy + phidzz) / (dx * dx);
+                                    termjjkk = aij[jj][kk] * (phidxx + phidyy + phidzz);
                                 }
 
                                 dsum += 0.5 * (termiikk - termjjkk) + (wij[ii][kk] - wij[jj][kk]) * phi[kk][ix][iy][iz];
@@ -1147,39 +1147,40 @@ void datasave(int step)
     //     }
     // }
     // fclose(streamp);
-    // FILE *streamp; //ストリームのポインタ設定
-    // char bufferp[30];
-    // sprintf(bufferp, "data/phi/1d%d.csv", step);
-    // streamp = fopen(bufferp, "a");
 
-    // for (k = 0; k <= ndmz; k++)
-    // {
-    //     for (j = 0; j <= ndmy; j++)
-    //     {
-    //         for (i = 0; i <= ndmx; i++)
-    //         {
-    //             fprintf(streamp, "%e\n", phi[2][i][j][k]);
-    //         }
-    //     }
-    // }
-    // fclose(streamp);
+    FILE *streamp; //ストリームのポインタ設定
+    char bufferp[30];
+    sprintf(bufferp, "data/phi/1d%d.csv", step);
+    streamp = fopen(bufferp, "a");
 
-    // FILE *streamc; //ストリームのポインタ設定
-    // char bufferc[30];
-    // sprintf(bufferc, "data/con/1d%d.csv", step);
-    // streamc = fopen(bufferc, "a");
+    for (k = 0; k <= ndmz; k++)
+    {
+        for (j = 0; j <= ndmy; j++)
+        {
+            for (i = 0; i <= ndmx; i++)
+            {
+                fprintf(streamp, "%e\n", phi[2][i][j][k]);
+            }
+        }
+    }
+    fclose(streamp);
 
-    // for (k = 0; k <= ndmz; k++)
-    // {
-    //     for (j = 0; j <= ndmy; j++)
-    //     {
-    //         for (i = 0; i <= ndmx; i++)
-    //         {
-    //             fprintf(streamc, "%e\n", cont[i][j][k]);
-    //         }
-    //     }
-    // }
-    // fclose(streamc);
+    FILE *streamc; //ストリームのポインタ設定
+    char bufferc[30];
+    sprintf(bufferc, "data/con/1d%d.csv", step);
+    streamc = fopen(bufferc, "a");
+
+    for (k = 0; k <= ndmz; k++)
+    {
+        for (j = 0; j <= ndmy; j++)
+        {
+            for (i = 0; i <= ndmx; i++)
+            {
+                fprintf(streamc, "%e\n", cont[i][j][k]);
+            }
+        }
+    }
+    fclose(streamc);
 }
 
 double calC01e(double temp0)

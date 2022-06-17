@@ -8,7 +8,7 @@ data/con/*.csv \
 data/phi/*.csv \
 figures/con_xy/*.png \
 figures/con_yz/*.png \
-figurescon/*.png \
+figures/con/*.png \
 figures/phi/*.png \
 && ./main \
 && rm main \

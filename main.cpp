@@ -13,7 +13,7 @@ using namespace cimg_library;
 #define N 3
 #define NTH 8
 #define NDX 128
-#define NDY 1
+#define NDY 128
 #define NDZ 1
 #define NDL 2560
 #define PI 3.14159
@@ -47,7 +47,7 @@ double Ds = 2.0e-13;
 
 double gradT = 0.000;
 double rateT = 0.000000;
-double temp0 = -0.5;
+double temp0 = -.2;
 double cl = 0.122;
 
 double alpha_d = dtime * Dl / dx / dx;
@@ -201,8 +201,8 @@ int main(void)
         {
             for (k = 0; k <= ndmz; k++)
             {
-                if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
-                // if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
+                // if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
+                if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
                 // if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
                 {
                     phi[1][i][j][k] = 1.0;
@@ -213,15 +213,15 @@ int main(void)
                     conp[0][i][j][k] = calC01e(temp[i][j][k]);
                 }
                 // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                // else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
-                // {
-                //     phi[1][i][j][k] = 0.0;
-                //     conp[1][i][j][k] = calC1e(temp[i][j][k]);
-                //     phi[2][i][j][k] = 1.0;
-                //     conp[2][i][j][k] = calC2e(temp[i][j][k]);
-                //     phi[0][i][j][k] = 0.0;
-                //     conp[0][i][j][k] = calC02e(temp[i][j][k]);
-                // }
+                else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
+                {
+                    phi[1][i][j][k] = 0.0;
+                    conp[1][i][j][k] = calC1e(temp[i][j][k]);
+                    phi[2][i][j][k] = 1.0;
+                    conp[2][i][j][k] = calC2e(temp[i][j][k]);
+                    phi[0][i][j][k] = 0.0;
+                    conp[0][i][j][k] = calC02e(temp[i][j][k]);
+                }
                 else
                 {
                     phi[1][i][j][k] = 0.0;
@@ -1148,39 +1148,39 @@ void datasave(int step)
     // }
     // fclose(streamp);
 
-    FILE *streamp; //ストリームのポインタ設定
-    char bufferp[30];
-    sprintf(bufferp, "data/phi/1d%d.csv", step);
-    streamp = fopen(bufferp, "a");
+    // FILE *streamp; //ストリームのポインタ設定
+    // char bufferp[30];
+    // sprintf(bufferp, "data/phi/1d%d.csv", step);
+    // streamp = fopen(bufferp, "a");
 
-    for (k = 0; k <= ndmz; k++)
-    {
-        for (j = 0; j <= ndmy; j++)
-        {
-            for (i = 0; i <= ndmx; i++)
-            {
-                fprintf(streamp, "%e\n", phi[2][i][j][k]);
-            }
-        }
-    }
-    fclose(streamp);
+    // for (k = 0; k <= ndmz; k++)
+    // {
+    //     for (j = 0; j <= ndmy; j++)
+    //     {
+    //         for (i = 0; i <= ndmx; i++)
+    //         {
+    //             fprintf(streamp, "%e\n", phi[2][i][j][k]);
+    //         }
+    //     }
+    // }
+    // fclose(streamp);
 
-    FILE *streamc; //ストリームのポインタ設定
-    char bufferc[30];
-    sprintf(bufferc, "data/con/1d%d.csv", step);
-    streamc = fopen(bufferc, "a");
+    // FILE *streamc; //ストリームのポインタ設定
+    // char bufferc[30];
+    // sprintf(bufferc, "data/con/1d%d.csv", step);
+    // streamc = fopen(bufferc, "a");
 
-    for (k = 0; k <= ndmz; k++)
-    {
-        for (j = 0; j <= ndmy; j++)
-        {
-            for (i = 0; i <= ndmx; i++)
-            {
-                fprintf(streamc, "%e\n", cont[i][j][k]);
-            }
-        }
-    }
-    fclose(streamc);
+    // for (k = 0; k <= ndmz; k++)
+    // {
+    //     for (j = 0; j <= ndmy; j++)
+    //     {
+    //         for (i = 0; i <= ndmx; i++)
+    //         {
+    //             fprintf(streamc, "%e\n", cont[i][j][k]);
+    //         }
+    //     }
+    // }
+    // fclose(streamc);
 }
 
 double calC01e(double temp0)

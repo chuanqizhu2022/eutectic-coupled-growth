@@ -48,7 +48,7 @@ double Ds = 2.0e-13;
 double gradT = 0.000;
 double rateT = 0.000000;
 double temp0 = -0.5;
-double cl = 0.222;
+double cl = 0.122;
 
 double alpha_d = dtime * Dl / dx / dx;
 double alpha_m = dtime / dx / dx * M0 * A0;
@@ -204,24 +204,24 @@ int main(void)
                 if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
                 // if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
                 // if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
-                // {
-                //     phi[1][i][j][k] = 1.0;
-                //     conp[1][i][j][k] = calC1e(temp[i][j][k]);
-                //     phi[2][i][j][k] = 0.0;
-                //     conp[2][i][j][k] = calC2e(temp[i][j][k]);
-                //     phi[0][i][j][k] = 0.0;
-                //     conp[0][i][j][k] = calC01e(temp[i][j][k]);
-                // }
-                // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                // else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
                 {
-                    phi[1][i][j][k] = 0.0;
+                    phi[1][i][j][k] = 1.0;
                     conp[1][i][j][k] = calC1e(temp[i][j][k]);
-                    phi[2][i][j][k] = 1.0;
+                    phi[2][i][j][k] = 0.0;
                     conp[2][i][j][k] = calC2e(temp[i][j][k]);
                     phi[0][i][j][k] = 0.0;
-                    conp[0][i][j][k] = calC02e(temp[i][j][k]);
+                    conp[0][i][j][k] = calC01e(temp[i][j][k]);
                 }
+                // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
+                // else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
+                // {
+                //     phi[1][i][j][k] = 0.0;
+                //     conp[1][i][j][k] = calC1e(temp[i][j][k]);
+                //     phi[2][i][j][k] = 1.0;
+                //     conp[2][i][j][k] = calC2e(temp[i][j][k]);
+                //     phi[0][i][j][k] = 0.0;
+                //     conp[0][i][j][k] = calC02e(temp[i][j][k]);
+                // }
                 else
                 {
                     phi[1][i][j][k] = 0.0;

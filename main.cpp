@@ -22,33 +22,46 @@ int nm = N - 1;
 int ndmx = NDX - 1;
 int ndmy = NDY - 1;
 int ndmz = NDZ - 1;
-int mid = NDX / 4;
+int mid = NDY / 4;
 int rows = NDX / NTH;
 
-int nstep = 10001;
-int pstep = 2000;
+int nstep = 160001;
+int pstep = 4000;
 
 double dx = 1.0e-7;
 double dtime = 1.0e-5;
 
-double gamma0 = 0.1;
+double gamma0 = 0.38;
+double gamma1 = 0.165;
+double gamma2 = 0.352;
 double astre = -0.05;
 double mobi = 0.25e-9;
 double delta = 5.0 * dx;
 
+// Aluminum-liquid
+double A1 = 8.0 * delta * gamma1 / PI / PI;
+double W1 = 4.0 * gamma1 / delta;
+double M1 = mobi * PI * PI / (8.0 * delta);
+double S1 = 1.08e6;
+
+// Silicon-liquid
+double A2 = 8.0 * delta * gamma2 / PI / PI;
+double W2 = 4.0 * gamma2 / delta;
+double M2 = mobi * PI * PI / (8.0 * delta);
+double S2 = 2.4e6;
+
+// Aluminum-Silicon
 double A0 = 8.0 * delta * gamma0 / PI / PI;
 double W0 = 4.0 * gamma0 / delta;
-double M0 = mobi * PI * PI / (8.0 * delta);
-double S1 = 1.08e6;
-double S2 = 2.4e6;
+double M0 = (M1 + M2) / 20.0;
 
 double Dl = 0.1e-9;
 double Ds = 2.0e-13;
 
-double gradT = 0.000;
-double rateT = 0.000000;
-double temp0 = -.2;
-double cl = 0.122;
+double gradT = 1.0e5;
+double rateT = 0.3;
+double temp0 = 0.0;
+double cl = 0.142;
 
 double alpha_d = dtime * Dl / dx / dx;
 double alpha_m = dtime / dx / dx * M0 * A0;
@@ -165,23 +178,35 @@ int main(void)
     {
         for (j = 0; j <= nm; j++)
         {
-            wij[i][j] = W0;
-            aij[i][j] = A0;
-            mij[i][j] = M0;
-            anij[i][j] = 0;
             if (i == j)
             {
                 wij[i][j] = 0.0;
                 aij[i][j] = 0.0;
                 mij[i][j] = 0.0;
             }
+            // Aluminum-liquid
+            if ((i == 0 && j % 2 == 1) || (i % 2 == 1 && j == 0))
+            {
+                wij[i][j] = W1;
+                aij[i][j] = A1;
+                mij[i][j] = M1;
+            }
+            // Silicon-liquid
+            if ((i == 0 && j % 2 == 0 && j != 0) || (i % 2 == 0 && i != 0 && j == 0))
+            {
+                wij[i][j] = W2;
+                aij[i][j] = A2;
+                mij[i][j] = M2;
+            }
+            // Silicon-Aluminum
+            if ((i % 2 == 0 && i != 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0 && j != 0))
+            {
+                wij[i][j] = W0;
+                aij[i][j] = A0;
+                mij[i][j] = M0;
+            }
         }
     }
-
-    mij[1][2] = M0 * 0.1;
-    mij[2][1] = M0 * 0.1;
-    anij[1][0] = 1;
-    anij[0][1] = 1;
 
     for (i = 0; i <= ndmx; i++)
     {
@@ -189,7 +214,7 @@ int main(void)
         {
             for (k = 0; k <= ndmz; k++)
             {
-                temp[i][j][k] = temp0 + gradT * i * dx;
+                temp[i][j][k] = temp0 - gradT * mid * dx + gradT * j * dx;
             }
         }
     }
@@ -202,7 +227,7 @@ int main(void)
             for (k = 0; k <= ndmz; k++)
             {
                 // if ((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) + (k - NDZ / 2) * (k - NDZ / 2) < NDX / 8 * NDX / 8)
-                if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 400.0) && (j < NDY / 4))
+                if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) > 55.0) && (j < NDY / 4))
                 // if (i < NDX * 9.0 / 10.0 && j < NDY / 4)
                 {
                     phi[1][i][j][k] = 1.0;
@@ -213,7 +238,7 @@ int main(void)
                     conp[0][i][j][k] = calC01e(temp[i][j][k]);
                 }
                 // else if (((i - NDX / 2) * (i - NDX / 2) + (j - NDY / 2) * (j - NDY / 2) >= (NDX * NDX / 2.0 / PI)) && (k < NDZ / 4))
-                else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 400.0) && (j < NDY / 4))
+                else if (((i - NDX / 2) * (i - NDX / 2) + (k - NDZ / 2) * (k - NDZ / 2) <= 55.0) && (j < NDY / 4))
                 {
                     phi[1][i][j][k] = 0.0;
                     conp[1][i][j][k] = calC1e(temp[i][j][k]);
@@ -369,6 +394,7 @@ int main(void)
             cout << istep * dtime << " s have passed!" << endl;
             cout << "The interface position is " << intpos << endl;
             cout << "The average concnetration is " << c0 << endl;
+            cout << " the interface temperature is " << temp[0][intpos][0] << endl;
             // ****** YZ *******
             cimg_forXY(ch_fldxz, x, z)
             {

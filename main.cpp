@@ -31,6 +31,12 @@ int pstep = 4000;
 double dx = 1.0e-7;
 double dtime = 1.0e-5;
 
+double Te = 0.0;
+double ce = 0.122;
+double ml1 = -680.0;
+double ml2 = 1302.0;
+double kap1 = 0.131;
+
 double gamma0 = 0.38;
 double gamma1 = 0.165;
 double gamma2 = 0.352;
@@ -42,13 +48,13 @@ double delta = 5.0 * dx;
 double A1 = 8.0 * delta * gamma1 / PI / PI;
 double W1 = 4.0 * gamma1 / delta;
 double M1 = mobi * PI * PI / (8.0 * delta);
-double S1 = 1.08e6;
+double S1 = 1.08e4;
 
 // Silicon-liquid
 double A2 = 8.0 * delta * gamma2 / PI / PI;
 double W2 = 4.0 * gamma2 / delta;
 double M2 = mobi * PI * PI / (8.0 * delta);
-double S2 = 2.4e6;
+double S2 = 2.4e4;
 
 // Aluminum-Silicon
 double A0 = 8.0 * delta * gamma0 / PI / PI;
@@ -58,9 +64,9 @@ double M0 = (M1 + M2) / 20.0;
 double Dl = 0.1e-9;
 double Ds = 2.0e-13;
 
-double gradT = 1.0e5;
-double rateT = 0.3;
-double temp0 = 0.0;
+double gradT = 1.0e7;
+double rateT = 25;
+double temp0 = -15.0;
 double cl = 0.142;
 
 double alpha_d = dtime * Dl / dx / dx;
@@ -394,7 +400,7 @@ int main(void)
             cout << istep * dtime << " s have passed!" << endl;
             cout << "The interface position is " << intpos << endl;
             cout << "The average concnetration is " << c0 << endl;
-            cout << " the interface temperature is " << temp[0][intpos][0] << endl;
+            cout << " the interface temperature is " << double(temp[0][intpos][0]) << endl;
             // ****** YZ *******
             cimg_forXY(ch_fldxz, x, z)
             {
@@ -1209,58 +1215,41 @@ void datasave(int step)
     // fclose(streamc);
 }
 
-double calC01e(double temp0)
+double calC01e(double T)
 {
-    double Te = 0.0;
-    double ce = 0.122;
-    double ml1 = -10.0;
-    double kap1 = 0.131;
     double c01e;
-    c01e = ce + (temp0 - Te) / ml1;
+    c01e = ce + (T - Te) / ml1;
     return c01e;
 }
 
-double calC1e(double temp0)
+double calC1e(double T)
 {
-    double Te = 0.0;
-    double ce = 0.122;
-    double ml1 = -10.0;
-    double kap1 = 0.131;
     double c1e;
-    c1e = (ce + (temp0 - Te) / ml1) * kap1;
+    c1e = (ce + (T - Te) / ml1) * kap1;
     return c1e;
 }
 
-double calC02e(double temp0)
+double calC02e(double T)
 {
-    double Te = 0.0;
-    double ce = 0.122;
-    double ml2 = 14.0;
     double c02e;
-    c02e = ce + (temp0 - Te) / ml2;
+    c02e = ce + (T - Te) / ml2;
     return c02e;
 }
 
-double calC2e(double temp0)
+double calC2e(double T)
 {
     double c2e = 1.0;
     return c2e;
 }
 
-double calDF10(double con0, double temp0, double dS)
+double calDF10(double con0, double T, double dS)
 {
-    double Te = 0.0;
-    double ce = 0.122;
-    double ml1 = -10.0;
-    double DF = ((con0 - ce) * ml1 + Te - temp0) * dS;
+    double DF = ((con0 - ce) * ml1 + Te - T) * dS;
     return DF;
 }
 
-double calDF20(double con0, double temp0, double dS)
+double calDF20(double con0, double T, double dS)
 {
-    double Te = 0.0;
-    double ce = 0.122;
-    double ml2 = 14.0;
-    double DF = ((con0 - ce) * ml2 + Te - temp0) * dS;
+    double DF = ((con0 - ce) * ml2 + Te - T) * dS;
     return DF;
 }
